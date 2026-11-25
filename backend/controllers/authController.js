@@ -1,9 +1,8 @@
-
 const bcrypt = require("bcryptjs");
 const generarToken = require("../utils/generateToken");
-
-// Almacenamiento temporal de usuarios
-const usuarios = [];
+const { buscarPorCorreo, agregarUsuario } = require("../data/usuarios");
+const { validarCorreo, validarPassword } = require("../utils/validators");
+const logger = require("../utils/logger");
 
 // REGISTRAR USUARIO
 const registrar = async (req, res) => {
@@ -16,15 +15,19 @@ const registrar = async (req, res) => {
             });
         }
 
-        if (password.length < 6) {
+        if (!validarCorreo(correo)) {
+            return res.status(400).json({
+                mensaje: "El correo no tiene un formato válido"
+            });
+        }
+
+        if (!validarPassword(password)) {
             return res.status(400).json({
                 mensaje: "La contraseña debe tener al menos 6 caracteres"
             });
         }
 
-        const existeUsuario = usuarios.find(
-            usuario => usuario.correo === correo.toLowerCase()
-        );
+        const existeUsuario = buscarPorCorreo(correo);
 
         if (existeUsuario) {
             return res.status(409).json({
@@ -34,17 +37,17 @@ const registrar = async (req, res) => {
 
         const passwordHash = await bcrypt.hash(password, 10);
 
-        const nuevoUsuario = {
+        const nuevoUsuario = agregarUsuario({
             id: Date.now(),
             nombre,
             correo: correo.toLowerCase(),
             password: passwordHash,
             rol: "usuario"
-        };
-
-        usuarios.push(nuevoUsuario);
+        });
 
         const token = generarToken(nuevoUsuario);
+
+        logger.info("Usuario registrado", { correo: nuevoUsuario.correo });
 
         res.status(201).json({
             mensaje: "Usuario registrado correctamente",
@@ -58,6 +61,7 @@ const registrar = async (req, res) => {
         });
 
     } catch (error) {
+        logger.error("Error al registrar usuario", { mensaje: error.message });
         res.status(500).json({
             mensaje: "Error al registrar usuario"
         });
@@ -75,28 +79,27 @@ const iniciarSesion = async (req, res) => {
             });
         }
 
-        const usuario = usuarios.find(
-            usuario => usuario.correo === correo.toLowerCase()
-        );
+        const usuario = buscarPorCorreo(correo);
 
         if (!usuario) {
+            logger.warn("Intento de login con correo inexistente", { correo });
             return res.status(401).json({
                 mensaje: "Credenciales incorrectas"
             });
         }
 
-        const passwordValida = await bcrypt.compare(
-            password,
-            usuario.password
-        );
+        const passwordValida = await bcrypt.compare(password, usuario.password);
 
         if (!passwordValida) {
+            logger.warn("Intento de login con contraseña inválida", { correo });
             return res.status(401).json({
                 mensaje: "Credenciales incorrectas"
             });
         }
 
         const token = generarToken(usuario);
+
+        logger.info("Inicio de sesión exitoso", { correo: usuario.correo });
 
         res.json({
             mensaje: "Inicio de sesión exitoso",
@@ -110,13 +113,11 @@ const iniciarSesion = async (req, res) => {
         });
 
     } catch (error) {
+        logger.error("Error al iniciar sesión", { mensaje: error.message });
         res.status(500).json({
             mensaje: "Error al iniciar sesión"
         });
     }
 };
 
-module.exports = {
-    registrar,
-    iniciarSesion
-};
+module.exports = { registrar, iniciarSesion };

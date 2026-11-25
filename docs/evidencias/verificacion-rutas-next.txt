@@ -1,0 +1,26 @@
+# Verificación de rutas de la app Next.js en modo producción
+# Fecha: 2026-11-25T00:22:01Z
+
+## / (SSG - estática)
+HTTP 200 · tiempo 0.008521s · tamaño 11350 bytes
+## /solicitudes (SSR - dinámica)
+HTTP 200 · tiempo 0.032938s · tamaño 16675 bytes
+## /solicitudes?estado=Aprobada (SSR con filtro)
+  solicitud visible: SOL-2026-002
+  solicitud visible: SOL-2026-005
+## /solicitudes/SOL-2026-002 (ruta dinámica ISR)
+HTTP 200 · tiempo 0.014428s
+## /solicitudes/SOL-9999-999 (404 esperado)
+HTTP 404
+## /panel SIN sesión (middleware redirige)
+HTTP 307 -> http://localhost:3101/login?motivo=sesion-requerida
+## /api/health (monitoreo)
+{"estado":"OK","servicio":"pa4-next","entorno":"production","fecha":"2026-11-25T00:22:02.123Z","uptimeSegundos":0.6,"memoriaMB":48}
+## Login vía API (cookie httpOnly)
+{"mensaje":"Inicio de sesión exitoso","usuario":{"id":1,"nombre":"Estudiante Demo","correo":"estudiante@isil.edu.pe","rol":"usuario"}}
+## /api/auth/perfil con cookie
+{"mensaje":"Acceso autorizado al perfil","usuario":{"id":1,"nombre":"Estudiante Demo","correo":"estudiante@isil.edu.pe","rol":"usuario"}}
+## /panel CON sesión
+HTTP 200
+## /api/auth/perfil sin cookie (401 esperado)
+HTTP 401

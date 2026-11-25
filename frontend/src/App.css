@@ -1,104 +1,306 @@
-
-#root {
-  min-height: 100vh;
-  width: 100%;
-  margin: 0;
-}
-
-* {
-  box-sizing: border-box;
-}
-
-body {
-  margin: 0;
-  min-width: 320px;
-  min-height: 100vh;
-  font-family: Arial, Helvetica, sans-serif;
-  background: linear-gradient(135deg, #101827, #172554, #312e81);
-  color: #ffffff;
-}
-
+/* ---------- Layout general ---------- */
 .contenedor {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 24px;
+  background: linear-gradient(135deg, #1e1b4b, #312e81 55%, #4338ca);
 }
 
-.tarjeta-login {
+.contenedor-app {
+  min-height: 100vh;
+  padding: 24px clamp(16px, 5vw, 64px) 64px;
+  background: #f1f5f9;
+}
+
+.cargando {
+  text-align: center;
+  color: #64748b;
+  padding: 24px 0;
+}
+
+/* ---------- Tarjeta de login ---------- */
+.tarjeta {
   width: 100%;
-  max-width: 420px;
+  max-width: 440px;
   padding: 40px;
   background: #ffffff;
-  color: #1e293b;
   border-radius: 18px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.35);
 }
 
-.tarjeta-login h1 {
-  margin: 0 0 12px;
+.tarjeta h1 {
   text-align: center;
-  font-size: 27px;
-  color: #1e293b;
+  font-size: 26px;
   font-weight: 700;
 }
+
 .subtitulo {
-  margin-bottom: 30px;
+  margin: 8px 0 24px;
   text-align: center;
   color: #64748b;
   font-size: 14px;
 }
 
+.tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  background: #eef2ff;
+  padding: 5px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+
+.tabs button {
+  background: transparent;
+  color: #4338ca;
+  padding: 9px;
+  border-radius: 9px;
+}
+
+.tabs button.activo {
+  background: #4338ca;
+  color: #fff;
+}
+
 .formulario {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
 }
 
-.formulario input {
-  width: 100%;
-  padding: 13px 14px;
-  border: 1px solid #cbd5e1;
-  border-radius: 9px;
-  font-size: 15px;
-  outline: none;
-}
-
-.formulario input:focus {
-  border-color: #4f46e5;
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
-}
-
-.formulario button {
-  padding: 13px;
-  border: none;
-  border-radius: 9px;
-  background: #4f46e5;
-  color: white;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.formulario button:hover {
-  background: #4338ca;
-}
-
-.formulario button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+.formulario .fila {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
 }
 
 .mensaje {
+  margin-top: 14px;
+  padding: 11px 14px;
+  border-radius: 10px;
+  font-size: 14px;
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.mensaje.error {
+  background: #fef2f2;
+  color: #b91c1c;
+  border-color: #fecaca;
+}
+
+.nota-demo {
   margin-top: 18px;
+  font-size: 13px;
+  color: #64748b;
   text-align: center;
+}
+
+.nota-demo code {
+  background: #f1f5f9;
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+
+/* ---------- Cabecera de la app ---------- */
+.cabecera {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0 24px;
+  border-bottom: 1px solid #e2e8f0;
+  margin-bottom: 24px;
+}
+
+.cabecera h1 {
+  font-size: 24px;
+}
+
+.cabecera .subtitulo {
+  margin: 4px 0 0;
+  text-align: left;
+  text-transform: capitalize;
+}
+
+.sesion {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 14px;
+  color: #334155;
+}
+
+.sesion button {
+  background: #eef2ff;
+  color: #4338ca;
+}
+
+/* ---------- Panel de solicitudes ---------- */
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.filtros button {
+  background: #fff;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+  padding: 8px 16px;
   font-size: 14px;
 }
 
-.tarjeta-login h2 {
-  color: #1e293b;
-  font-size: 24px;
-  margin-top: 25px;
-  margin-bottom: 15px;
+.filtros button.activo {
+  background: #4338ca;
+  border-color: #4338ca;
+  color: #fff;
+}
+
+.lista-solicitudes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  margin-bottom: 40px;
+}
+
+.tarjeta-solicitud {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+}
+
+.tarjeta-solicitud header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.codigo {
+  font-family: Consolas, monospace;
+  font-size: 13px;
+  color: #4338ca;
+}
+
+.estado {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.estado.pendiente { background: #fef9c3; color: #a16207; }
+.estado.revision { background: #e0f2fe; color: #0369a1; }
+.estado.aprobada { background: #dcfce7; color: #15803d; }
+.estado.rechazada { background: #fee2e2; color: #b91c1c; }
+
+.tarjeta-solicitud h3 {
+  font-size: 16px;
+  line-height: 1.35;
+}
+
+.tarjeta-solicitud .meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  font-size: 12.5px;
+  color: #64748b;
+}
+
+.tarjeta-solicitud button {
+  margin-top: auto;
+  background: #eef2ff;
+  color: #4338ca;
+  font-size: 14px;
+  padding: 8px 14px;
+}
+
+/* ---------- Formulario de solicitud ---------- */
+.formulario-solicitud {
+  max-width: 640px;
+}
+
+.formulario-solicitud h2 {
+  font-size: 19px;
+  margin-bottom: 6px;
+}
+
+/* ---------- Modal de detalle ---------- */
+.modal-fondo {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 50;
+}
+
+.modal {
+  width: 100%;
+  max-width: 520px;
+  background: #fff;
+  border-radius: 16px;
+  padding: 26px;
+  box-shadow: 0 30px 80px rgba(15, 23, 42, 0.4);
+}
+
+.modal header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.modal header button {
+  background: #f1f5f9;
+  color: #334155;
+  padding: 4px 12px;
+}
+
+.modal h3 {
+  margin-bottom: 16px;
+  font-size: 18px;
+}
+
+.modal dl {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 8px 12px;
+  font-size: 14px;
+  margin: 0 0 16px;
+}
+
+.modal dt {
+  color: #64748b;
+  font-weight: 600;
+}
+
+.modal dd {
+  margin: 0;
+  color: #0f172a;
+}
+
+.modal .descripcion {
+  font-size: 14px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 14px;
+  color: #334155;
 }

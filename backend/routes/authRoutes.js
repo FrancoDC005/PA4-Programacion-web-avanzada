@@ -1,11 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const {
-    registrar,
-    iniciarSesion
-} = require("../controllers/authController");
-
+const { registrar, iniciarSesion } = require("../controllers/authController");
 const verificarToken = require("../middleware/authMiddleware");
 
 router.post("/register", registrar);

@@ -1,0 +1,15 @@
+   ▲ Next.js 15.5.29
+   - Local:        http://localhost:3101
+   - Network:      http://172.16.10.3:3101
+
+ ✓ Starting...
+ ⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of /tmp/pa4work/package-lock.json as the root directory.
+ To silence this warning, set `outputFileTracingRoot` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/output#caveats for more information.
+ Detected additional lockfiles: 
+   * /tmp/pa4work/next-app/package-lock.json
+
+ ✓ Ready in 144ms
+[api] Backend no disponible (La API respondió 404); se usa dataset local
+[api] Backend no disponible (La API respondió 404); se usa dataset local

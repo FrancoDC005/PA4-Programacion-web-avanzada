@@ -1,0 +1,17 @@
+Verificando API en http://localhost:3000/api
+
+✔ Health check responde OK
+✔ Listado público de solicitudes
+✔ Detalle público de solicitud por código
+✔ Solicitud inexistente devuelve 404
+✔ Registro de usuario devuelve token
+✔ Registro duplicado devuelve 409
+✔ Login con credenciales correctas
+✔ Login con contraseña incorrecta devuelve 401
+✔ Perfil sin token devuelve 401
+✔ Perfil con token devuelve el usuario
+✔ Crear solicitud sin token devuelve 401
+✔ Crear solicitud con token devuelve 201
+✔ Validación de campos en creación
+
+Resultado: 13 pruebas pasadas, 0 fallidas

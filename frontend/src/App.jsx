@@ -1,226 +1,280 @@
-
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import FormularioLogin from "./components/FormularioLogin";
+import FormularioSolicitud from "./components/FormularioSolicitud";
+import TarjetaSolicitud from "./components/TarjetaSolicitud";
+import DetalleSolicitud from "./components/DetalleSolicitud";
 import {
   iniciarSesion,
-  obtenerPerfil
+  obtenerPerfil,
+  registrarUsuario
 } from "./api/authService";
+import {
+  listarSolicitudes,
+  crearSolicitud
+} from "./api/solicitudesService";
+import { logger } from "./utils/logger";
+import configuracion from "./config/configuracion";
 import "./App.css";
 
+const ESTADOS = ["Todos", "Pendiente", "En revisión", "Aprobada", "Rechazada"];
+
 function App() {
-  const [correo, setCorreo] = useState("");
-  const [password, setPassword] = useState("");
+  const [usuario, setUsuario] = useState(null);
   const [mensaje, setMensaje] = useState("");
-  const [cargando, setCargando] = useState(false);
-  const [perfil, setPerfil] = useState(null);
-  const [cargandoPerfil, setCargandoPerfil] = useState(false);
+  const [cargandoAuth, setCargandoAuth] = useState(false);
+  const [validandoSesion, setValidandoSesion] = useState(true);
 
-  // Recuperar la sesión guardada
-  const [usuario, setUsuario] = useState(() => {
-    try {
-      const usuarioGuardado = sessionStorage.getItem("usuario");
+  const [solicitudes, setSolicitudes] = useState([]);
+  const [cargandoSolicitudes, setCargandoSolicitudes] = useState(false);
+  const [errorSolicitudes, setErrorSolicitudes] = useState("");
+  const [filtroEstado, setFiltroEstado] = useState("Todos");
+  const [detalle, setDetalle] = useState(null);
+  const [creando, setCreando] = useState(false);
+  const [mensajeCreacion, setMensajeCreacion] = useState("");
 
-      return usuarioGuardado
-        ? JSON.parse(usuarioGuardado)
-        : null;
-    } catch (error) {
-      sessionStorage.removeItem("usuario");
-      sessionStorage.removeItem("token");
-      return null;
-    }
-  });
-  // Validar automáticamente la sesión con el backend
+  // ---------------------------------------------------------------
+  // Sesión JWT: al recargar, se valida el token contra el backend
+  // ---------------------------------------------------------------
   useEffect(() => {
     const validarSesion = async () => {
       const token = sessionStorage.getItem("token");
 
       if (!token) {
-        setUsuario(null);
-        setPerfil(null);
-        sessionStorage.removeItem("usuario");
+        setValidandoSesion(false);
         return;
       }
 
       try {
-        const respuesta = await obtenerPerfil(token);
-
+        const respuesta = await obtenerPerfil();
         setUsuario(respuesta.usuario);
-        setPerfil(respuesta.usuario);
-
+        logger.info("Sesión restaurada y validada por el servidor");
       } catch (error) {
+        logger.warn("Sesión no válida, se limpia el almacenamiento", {
+          motivo: error.message
+        });
         sessionStorage.removeItem("token");
         sessionStorage.removeItem("usuario");
-
         setUsuario(null);
-        setPerfil(null);
+      } finally {
+        setValidandoSesion(false);
       }
     };
 
     validarSesion();
   }, []);
 
-  // Iniciar sesión
-  const manejarLogin = async (e) => {
-    e.preventDefault();
+  // Escucha el evento emitido por el interceptor de axios
+  useEffect(() => {
+    const manejarExpiracion = () => {
+      sessionStorage.removeItem("token");
+      sessionStorage.removeItem("usuario");
+      setUsuario(null);
+      setMensaje("Tu sesión expiró. Vuelve a iniciar sesión.");
+    };
 
-    setMensaje("");
-    setCargando(true);
+    window.addEventListener("sesion-expirada", manejarExpiracion);
+    return () => window.removeEventListener("sesion-expirada", manejarExpiracion);
+  }, []);
+
+  // ---------------------------------------------------------------
+  // Carga de solicitudes
+  // ---------------------------------------------------------------
+  const cargarSolicitudes = useCallback(async (estado = "Todos") => {
+    setCargandoSolicitudes(true);
+    setErrorSolicitudes("");
 
     try {
-      const respuesta = await iniciarSesion({
-        correo,
-        password
+      const filtros = estado === "Todos" ? {} : { estado };
+      const datos = await listarSolicitudes(filtros);
+
+      setSolicitudes(datos.solicitudes);
+      logger.info("Solicitudes cargadas desde la API", {
+        total: datos.total,
+        filtro: estado
       });
+    } catch (error) {
+      setErrorSolicitudes(error.message);
+      logger.error("Error al cargar solicitudes", { mensaje: error.message });
+    } finally {
+      setCargandoSolicitudes(false);
+    }
+  }, []);
 
-      // Guardar token y usuario
+  useEffect(() => {
+    cargarSolicitudes(filtroEstado);
+  }, [filtroEstado, cargarSolicitudes]);
+
+  // ---------------------------------------------------------------
+  // Autenticación
+  // ---------------------------------------------------------------
+  const manejarLogin = async (credenciales) => {
+    setMensaje("");
+    setCargandoAuth(true);
+
+    try {
+      const respuesta = await iniciarSesion(credenciales);
+
       sessionStorage.setItem("token", respuesta.token);
-
-      sessionStorage.setItem(
-        "usuario",
-        JSON.stringify(respuesta.usuario)
-      );
+      sessionStorage.setItem("usuario", JSON.stringify(respuesta.usuario));
 
       setUsuario(respuesta.usuario);
-      setPassword("");
-
-      setMensaje(
-        "Inicio de sesión exitoso. Bienvenido, " +
-        respuesta.usuario.nombre
-      );
-
+      logger.info("Inicio de sesión exitoso", { correo: respuesta.usuario.correo });
     } catch (error) {
       setMensaje(error.message);
-
+      logger.error("Fallo de inicio de sesión", { mensaje: error.message });
     } finally {
-      setCargando(false);
+      setCargandoAuth(false);
     }
   };
-  // Consultar perfil protegido con JWT
 
-  const consultarPerfil = async () => {
-    setCargandoPerfil(true);
+  const manejarRegistro = async (datos) => {
     setMensaje("");
-    setPerfil(null);
+    setCargandoAuth(true);
 
     try {
-      const token = sessionStorage.getItem("token");
+      const respuesta = await registrarUsuario(datos);
 
-      if (!token) {
-        throw new Error("No se encontró el token de sesión");
-      }
+      sessionStorage.setItem("token", respuesta.token);
+      sessionStorage.setItem("usuario", JSON.stringify(respuesta.usuario));
 
-      const respuesta = await obtenerPerfil(token);
-
-      setPerfil(respuesta.usuario);
-      setMensaje("Perfil protegido consultado correctamente");
-
+      setUsuario(respuesta.usuario);
+      logger.info("Usuario registrado y sesión iniciada");
     } catch (error) {
       setMensaje(error.message);
-
+      logger.error("Fallo de registro", { mensaje: error.message });
     } finally {
-      setCargandoPerfil(false);
+      setCargandoAuth(false);
     }
   };
-  // Cerrar sesión
+
   const cerrarSesion = () => {
     sessionStorage.removeItem("token");
     sessionStorage.removeItem("usuario");
-
     setUsuario(null);
-    setPerfil(null);
-    setCorreo("");
-    setPassword("");
     setMensaje("");
+    setDetalle(null);
+    logger.info("Sesión cerrada por el usuario");
   };
 
+  // ---------------------------------------------------------------
+  // Creación de solicitudes (ruta protegida con JWT)
+  // ---------------------------------------------------------------
+  const manejarCreacion = async (datos) => {
+    setCreando(true);
+    setMensajeCreacion("");
+
+    try {
+      const nueva = await crearSolicitud(datos);
+
+      setMensajeCreacion(`Solicitud ${nueva.codigo} registrada correctamente.`);
+      logger.info("Solicitud creada desde React", { codigo: nueva.codigo });
+      await cargarSolicitudes(filtroEstado);
+      return true;
+    } catch (error) {
+      setMensajeCreacion(error.message);
+      logger.error("Error al crear la solicitud", { mensaje: error.message });
+      return false;
+    } finally {
+      setCreando(false);
+    }
+  };
+
+  // ---------------------------------------------------------------
+  // Render
+  // ---------------------------------------------------------------
+  if (validandoSesion) {
+    return (
+      <main className="contenedor">
+        <p className="cargando">Validando sesión...</p>
+      </main>
+    );
+  }
+
+  if (!usuario) {
+    return (
+      <main className="contenedor">
+        <FormularioLogin
+          alIniciarSesion={manejarLogin}
+          alRegistrar={manejarRegistro}
+          cargando={cargandoAuth}
+          mensaje={mensaje}
+        />
+      </main>
+    );
+  }
+
   return (
-    <main className="contenedor">
-      <section className="tarjeta-login">
+    <main className="contenedor-app">
+      <header className="cabecera">
+        <div>
+          <h1>Gestión Académica</h1>
+          <p className="subtitulo">
+            Plataforma de Gestión de Solicitudes Académicas ·{" "}
+            {configuracion.entorno}
+          </p>
+        </div>
 
-        {usuario ? (
-          <>
-            <h1>Gestión Académica</h1>
+        <div className="sesion">
+          <span>
+            {usuario.nombre} <small>({usuario.rol})</small>
+          </span>
+          <button type="button" onClick={cerrarSesion}>
+            Cerrar sesión
+          </button>
+        </div>
+      </header>
 
-            <p className="subtitulo">
-              Plataforma de Gestión de Solicitudes Académicas
-            </p>
-
-            <h2>¡Bienvenido, {usuario.nombre}!</h2>
-
-            <p>
-              Correo: {usuario.correo}
-            </p>
-
-            <p>
-              Rol: {usuario.rol}
-            </p>
-
-            <p className="mensaje">
-              Sesión iniciada correctamente.
-            </p>
+      <section className="panel">
+        <div className="filtros">
+          {ESTADOS.map((estado) => (
             <button
-              onClick={consultarPerfil}
-              disabled={cargandoPerfil}
+              key={estado}
+              type="button"
+              className={filtroEstado === estado ? "activo" : ""}
+              onClick={() => setFiltroEstado(estado)}
             >
-              {cargandoPerfil
-                ? "Consultando perfil..."
-                : "Consultar mi perfil"}
+              {estado}
             </button>
+          ))}
+        </div>
 
-            {perfil && (
-              <div className="mensaje">
-                <h3>Perfil validado por el servidor</h3>
-                <p>Nombre: {perfil.nombre}</p>
-                <p>Correo: {perfil.correo}</p>
-                <p>Rol: {perfil.rol}</p>
-              </div>
-            )}
+        {cargandoSolicitudes && <p className="cargando">Cargando solicitudes...</p>}
 
-            <button onClick={cerrarSesion}>
-              Cerrar sesión
+        {errorSolicitudes && (
+          <div className="mensaje error">
+            {errorSolicitudes}{" "}
+            <button type="button" onClick={() => cargarSolicitudes(filtroEstado)}>
+              Reintentar
             </button>
-          </>
-        ) : (
-          <>
-            <h1>Gestión Académica</h1>
-
-            <p className="subtitulo">
-              Plataforma de Gestión de Solicitudes Académicas
-            </p>
-
-            <form
-              className="formulario"
-              onSubmit={manejarLogin}
-            >
-              <input
-                type="email"
-                placeholder="Correo electrónico"
-                value={correo}
-                onChange={(e) => setCorreo(e.target.value)}
-                required
-              />
-
-              <input
-                type="password"
-                placeholder="Contraseña"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-
-              <button type="submit" disabled={cargando}>
-                {cargando
-                  ? "Ingresando..."
-                  : "Iniciar sesión"}
-              </button>
-            </form>
-
-            {mensaje && (
-              <p className="mensaje">{mensaje}</p>
-            )}
-          </>
+          </div>
         )}
 
+        {!cargandoSolicitudes && !errorSolicitudes && (
+          <div className="lista-solicitudes">
+            {solicitudes.length === 0 ? (
+              <p className="cargando">No hay solicitudes con este filtro.</p>
+            ) : (
+              solicitudes.map((solicitud) => (
+                <TarjetaSolicitud
+                  key={solicitud.codigo}
+                  solicitud={solicitud}
+                  alVerDetalle={setDetalle}
+                />
+              ))
+            )}
+          </div>
+        )}
       </section>
+
+      <FormularioSolicitud
+        alCrear={manejarCreacion}
+        cargando={creando}
+        mensaje={mensajeCreacion}
+      />
+
+      {detalle && (
+        <DetalleSolicitud solicitud={detalle} alCerrar={() => setDetalle(null)} />
+      )}
     </main>
   );
 }

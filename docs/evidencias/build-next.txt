@@ -1,0 +1,52 @@
+ ⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of /tmp/pa4work/package-lock.json as the root directory.
+ To silence this warning, set `outputFileTracingRoot` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/output#caveats for more information.
+ Detected additional lockfiles: 
+   * /tmp/pa4work/next-app/package-lock.json
+
+   ▲ Next.js 15.5.29
+   - Environments: .env.local
+
+   Creating an optimized production build ...
+ ⚠ Found lockfile missing swc dependencies, patching...
+ ✓ Compiled successfully in 980ms
+   Linting and checking validity of types ...
+   Collecting page data ...
+ ⚠ Lockfile was successfully patched, please run "npm install" to ensure @next/swc dependencies are downloaded
+   Generating static pages (0/16) ...
+   Generating static pages (4/16) 
+   Generating static pages (8/16) 
+   Generating static pages (12/16) 
+ ✓ Generating static pages (16/16)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                               Size  First Load JS
+┌ ○ /                                    167 B         198 kB
+├ ƒ /_not-found                          139 B         198 kB
+├ ƒ /api/auth/login                      139 B         198 kB
+├ ƒ /api/auth/logout                     139 B         198 kB
+├ ƒ /api/auth/perfil                     139 B         198 kB
+├ ƒ /api/health                          139 B         198 kB
+├ ƒ /api/solicitudes                     139 B         198 kB
+├ ƒ /api/solicitudes/[codigo]            139 B         198 kB
+├ ƒ /login                               759 B         199 kB
+├ ƒ /panel                               432 B         198 kB
+├ ƒ /solicitudes                         167 B         198 kB
+└ ● /solicitudes/[codigo]                167 B         198 kB
+    ├ /solicitudes/SOL-2026-001
+    ├ /solicitudes/SOL-2026-002
+    ├ /solicitudes/SOL-2026-003
+    └ [+3 more paths]
++ First Load JS shared by all           198 kB
+  └ chunks/vendor-b1dc7eb9068bb46e.js   196 kB
+  └ other shared chunks (total)        1.92 kB
+
+
+ƒ Middleware                           39.5 kB
+
+○  (Static)   prerendered as static content
+●  (SSG)      prerendered as static HTML (uses generateStaticParams)
+ƒ  (Dynamic)  server-rendered on demand
+

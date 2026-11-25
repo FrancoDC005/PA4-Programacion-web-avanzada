@@ -1,0 +1,11 @@
+
+> backend@1.0.0 build
+> webpack --mode production
+
+1 asset
+262 modules
+
+WARNING in ./node_modules/express/lib/view.js 81:13-25
+Critical dependency: the request of a dependency is an expression
+
+webpack 5.113.0 compiled with 1 warning in 8461 ms
