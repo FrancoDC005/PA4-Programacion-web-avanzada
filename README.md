@@ -152,9 +152,9 @@ El proyecto `next-app/` se despliega en Vercel con:
   (Production y Preview). `API_URL` es opcional; si no se configura, la app usa
   el dataset semilla, tal como se explica en "Cómo ejecutar".
 
-La URL pública y la verificación de rutas se documentan al final de este README
-en la sección **Evidencias** y en
-[`docs/evidencias/verificacion-rutas-next.txt`](docs/evidencias/verificacion-rutas-next.txt).
+La URL pública es **https://pa-4-programacion-web-avanzada.vercel.app** y la
+verificación de rutas en producción está en
+[`docs/evidencias/verificacion-vercel-produccion.txt`](docs/evidencias/verificacion-vercel-produccion.txt).
 
 ### Actividad 4 — Preparación para producción (3 pts)
 
@@ -308,13 +308,19 @@ Todas las evidencias están en [`docs/`](docs/):
 | [`docs/capturas/next-login.png`](docs/capturas/next-login.png) | Login Next.js |
 | [`docs/capturas/next-panel-ssr.png`](docs/capturas/next-panel-ssr.png) | Panel privado Next.js (SSR + cookie httpOnly) |
 | [`docs/capturas/next-movil.png`](docs/capturas/next-movil.png) | Vista móvil del listado |
+| [`docs/capturas/vercel-home-ssg.png`](docs/capturas/vercel-home-ssg.png) | Portada en producción (Vercel) |
+| [`docs/capturas/vercel-solicitudes-ssr.png`](docs/capturas/vercel-solicitudes-ssr.png) | Listado SSR en producción |
+| [`docs/capturas/vercel-detalle-isr.png`](docs/capturas/vercel-detalle-isr.png) | Ruta dinámica ISR en producción |
+| [`docs/capturas/vercel-login.png`](docs/capturas/vercel-login.png) | Login en producción |
+| [`docs/capturas/vercel-panel-ssr.png`](docs/capturas/vercel-panel-ssr.png) | Panel privado en producción (SSR + cookie httpOnly) |
 
 ### Evidencias de ejecución y pruebas
 
 | Archivo | Contenido |
 |---|---|
 | [`docs/evidencias/pruebas-api.txt`](docs/evidencias/pruebas-api.txt) | Resultado de las 13 pruebas automatizadas de la API (Todas ✔) |
-| [`docs/evidencias/verificacion-rutas-next.txt`](docs/evidencias/verificacion-rutas-next.txt) | Verificación de rutas Next.js en producción: SSG, SSR, ISR, 404, middleware y cookie |
+| [`docs/evidencias/verificacion-rutas-next.txt`](docs/evidencias/verificacion-rutas-next.txt) | Verificación de rutas Next.js en local (modo producción) |
+| [`docs/evidencias/verificacion-vercel-produccion.txt`](docs/evidencias/verificacion-vercel-produccion.txt) | **Verificación de todas las rutas en la URL pública de Vercel (SSG, SSR, ISR, 404, middleware, cookie, health)** |
 | [`docs/evidencias/build-backend.txt`](docs/evidencias/build-backend.txt) | Build de producción del backend (Webpack) |
 | [`docs/evidencias/build-frontend.txt`](docs/evidencias/build-frontend.txt) | Build de producción del frontend (Vite, tamaños gzip) |
 | [`docs/evidencias/build-next.txt`](docs/evidencias/build-next.txt) | Build de Next.js con tabla de rutas y estrategias |
@@ -331,7 +337,19 @@ Todas las evidencias están en [`docs/`](docs/):
 
 ### Despliegue en Vercel
 
-- **URL de producción:** (https://pa-4-programacion-web-avanzada.vercel.app/login)
+- **URL de producción:** https://pa-4-programacion-web-avanzada.vercel.app
+- **Estado:** desplegado y verificado (ver `docs/evidencias/verificacion-vercel-produccion.txt`)
+
+| Ruta | Resultado |
+|---|---|
+| `/` (SSG) | HTTP 200 · ~0.27 s |
+| `/solicitudes` (SSR) | HTTP 200 · filtros por estado funcionando |
+| `/solicitudes/SOL-2026-002` (ISR) | HTTP 200 |
+| `/solicitudes/SOL-9999-999` | HTTP 404 |
+| `/panel` sin sesión | HTTP 307 → `/login?motivo=sesion-requerida` |
+| `/panel` con sesión | HTTP 200 |
+| `/api/health` | 200 · `{"estado":"OK",...}` |
+| `/api/auth/login` (credenciales inválidas) | HTTP 401 |
 
 ---
 

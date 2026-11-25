@@ -1,0 +1,31 @@
+# Verificación del despliegue en Vercel
+# URL: https://pa-4-programacion-web-avanzada.vercel.app
+# Fecha: 2026-11-25T02:38:24Z
+
+## / (SSG - estática)
+HTTP 200 · tiempo 0.269441s
+## /solicitudes (SSR - dinámica)
+HTTP 200 · tiempo 0.412071s
+## /solicitudes?estado=Aprobada (SSR con filtro)
+  solicitud visible: SOL-2026-002
+  solicitud visible: SOL-2026-005
+## /solicitudes/SOL-2026-002 (ruta dinámica ISR)
+HTTP 200 · tiempo 0.419773s
+## /solicitudes/SOL-9999-999 (404 esperado)
+HTTP 404
+## /login
+HTTP 200
+## /panel SIN sesión (middleware redirige)
+HTTP 307 -> https://pa-4-programacion-web-avanzada.vercel.app/login?motivo=sesion-requerida
+## /api/health (monitoreo en producción)
+{"estado":"OK","servicio":"pa4-next","entorno":"production","fecha":"2026-11-25T02:38:27.507Z","uptimeSegundos":36.5,"memoriaMB":17.2}
+## Login vía API (cookie httpOnly)
+{"mensaje":"Inicio de sesión exitoso","usuario":{"id":1,"nombre":"Estudiante Demo","correo":"estudiante@isil.edu.pe","rol":"usuario"}}
+## /api/auth/perfil con cookie
+{"mensaje":"Acceso autorizado al perfil","usuario":{"id":1,"nombre":"Estudiante Demo","correo":"estudiante@isil.edu.pe","rol":"usuario"}}
+## /panel CON sesión
+HTTP 200
+## /api/auth/perfil sin cookie (401 esperado)
+HTTP 401
+## /api/auth/login con contraseña incorrecta (401 esperado)
+HTTP 401
