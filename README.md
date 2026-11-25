@@ -331,8 +331,7 @@ Todas las evidencias están en [`docs/`](docs/):
 
 ### Despliegue en Vercel
 
-- **URL de producción:** [PEGAR AQUÍ LA URL DE VERCEL]
-- **Estado:** pendiente de completar tras el despliegue.
+- **URL de producción:** (https://pa-4-programacion-web-avanzada.vercel.app/login)
 
 ---
 
