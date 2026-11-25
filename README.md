@@ -357,7 +357,7 @@ Todas las evidencias están en [`docs/`](docs/):
 
 ## Video público de YouTube
 
-**Video público de YouTube:** [PEGAR AQUÍ EL ENLACE]
+**Video público de YouTube:** (https://www.youtube.com/channel/UCE4gClz8TzPbCmgzGN75ArQ)
 
 > La exposición debe explicar el problema, el procedimiento, la solución, las
 > decisiones y su justificación técnica, con todos los integrantes frente a
